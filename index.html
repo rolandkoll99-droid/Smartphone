@@ -20,7 +20,6 @@
       padding: 10px;
     }
 
-    /* Hauptkarte – klare, reduzierte Struktur */
     .app-card {
       max-width: 700px;
       margin: 0 auto;
@@ -32,7 +31,6 @@
       padding: 18px 16px 26px;
     }
 
-    /* Kopf – schlank */
     .header-slim {
       display: flex;
       justify-content: space-between;
@@ -86,7 +84,6 @@
       transform: scale(0.96);
     }
 
-    /* Teamnamen – kompakt */
     .team-names {
       display: flex;
       gap: 8px;
@@ -112,7 +109,7 @@
       border-color: transparent;
     }
 
-    /* Scoreboard – kleiner, einfacher */
+    /* Score – noch kompakter, ohne "Siege"-Text, nur Zahl */
     .score-compact {
       display: flex;
       justify-content: space-between;
@@ -153,7 +150,7 @@
     .score-item .wins-badge {
       background: #1f452b;
       color: white;
-      padding: 2px 14px;
+      padding: 2px 12px;
       border-radius: 40px;
       font-weight: 700;
       font-size: 0.85rem;
@@ -172,7 +169,7 @@
       flex-shrink: 0;
     }
 
-    /* Infozeile – sehr reduziert */
+    /* Info-Strip – nur noch die Sieg-Anzeige ohne "Ziel" */
     .info-strip {
       display: flex;
       justify-content: center;
@@ -193,7 +190,6 @@
       border-radius: 30px;
     }
 
-    /* Kehren Eingabe – schlank */
     .kehren-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -255,7 +251,7 @@
       border: 1px solid #c6dac1;
       background: white;
       font-weight: 700;
-      font-size: 1rem;
+      font-size:1rem;
       color: #1e4029;
       cursor: pointer;
       transition: 0.05s;
@@ -276,7 +272,6 @@
       color: #1f4a2e;
     }
 
-    /* Buttons – klar */
     .action-row {
       display: flex;
       flex-wrap: wrap;
@@ -315,7 +310,6 @@
       background: #edca5a;
     }
 
-    /* Toast */
     .toast {
       position: fixed;
       bottom: 20px;
@@ -356,46 +350,49 @@
 
   <!-- Kopf: Titel + Einstellungen -->
   <div class="header-slim">
-    <h1>🥌 ESV Grein</h1>
+    <h1>⚫ ESV Grein</h1>
     <div class="settings-group">
       <select id="gamesSelect">
-        <option value="2" selected>2 Siege</option>
+        <option value="2">2 Siege</option>
         <option value="3">3 Siege</option>
         <option value="4">4 Siege</option>
-       
+        <option value="5" selected>5 Siege</option>
+        <option value="6">6 Siege</option>
       </select>
       <select id="kehrenSelect">
         <option>4</option>
         <option selected>6</option>
         <option>8</option>
-            </select>
-      <button class="btn-icon" id="resetFullBtn">🔄 Reset</button>
-      <button class="btn-icon" id="spectatorBtn">📺 Monitor</button>
+        <option>10</option>
+        <option>12</option>
+      </select>
+      <button class="btn-icon" id="resetFullBtn">↺ Reset</button>
+      <button class="btn-icon" id="spectatorBtn">◻ Monitor</button>
     </div>
   </div>
 
   <!-- Teamnamen -->
   <div class="team-names">
-    <input type="text" id="teamAInput" value="Mannschaft W" placeholder="Team A">
-    <input type="text" id="teamBInput" value="Mannschaft E" placeholder="Team B">
+    <input type="text" id="teamAInput" value="Mannschaft A" placeholder="Team A">
+    <input type="text" id="teamBInput" value="Mannschaft B" placeholder="Team B">
   </div>
 
-  <!-- Score – kompakt & einfach -->
+  <!-- Score – kompakt, ohne "Siege"-Text, nur Zahl -->
   <div class="score-compact" id="scoreCompact">
     <div class="score-item" id="scoreACompact">
-      <span class="name" id="teamANameCompact">Mannschaft W</span>
+      <span class="name" id="teamANameCompact">Mannschaft A</span>
       <span class="pts" id="scoreAPtsCompact">0</span>
-      <span class="wins-badge">🏆 <span id="winsACompact">0</span></span>
+      <span class="wins-badge"><span id="winsACompact">0</span></span>
     </div>
     <div class="score-divider"></div>
     <div class="score-item" id="scoreBCompact">
-      <span class="name" id="teamBNameCompact">Mannschaft E</span>
+      <span class="name" id="teamBNameCompact">Mannschaft B</span>
       <span class="pts" id="scoreBPtsCompact">0</span>
-      <span class="wins-badge">🏆 <span id="winsBCompact">0</span></span>
+      <span class="wins-badge"><span id="winsBCompact">0</span></span>
     </div>
   </div>
 
-  <!-- Info – nur nötigstes -->
+  <!-- Info-Strip: nur Siegstand, kein "Ziel" -->
   <div class="info-strip">
     <span id="winsDisplay">0 : 0</span>
   </div>
@@ -408,7 +405,7 @@
   <!-- Actions -->
   <div class="action-row">
     <button class="action-btn gold" id="evaluateBtn">🏆 Spiel werten</button>
-    <button class="action-btn" id="resetKehrenBtn">🔄 Kehren löschen</button>
+    <button class="action-btn" id="resetKehrenBtn">↺ Kehren löschen</button>
   </div>
 
 </div>
@@ -423,8 +420,8 @@
     let state = {
       kehren: 6,
       winsToChampion: 5,
-      teamA: 'Mannschaft W',
-      teamB: 'Mannschaft E',
+      teamA: 'Mannschaft A',
+      teamB: 'Mannschaft B',
       pointsA: [],
       pointsB: [],
       winsA: 0,
@@ -444,7 +441,6 @@
     const winsACompact = $('winsACompact');
     const winsBCompact = $('winsBCompact');
     const winsDisplay = $('winsDisplay');
-    const targetDisplay = $('targetDisplay');
     const toastEl = $('toast');
 
     // ----- Hilfen -----
@@ -494,9 +490,8 @@
       winsACompact.textContent = state.winsA;
       winsBCompact.textContent = state.winsB;
 
-      // Info
+      // Info – nur Siegstand
       winsDisplay.textContent = `${state.winsA} : ${state.winsB}`;
-      targetDisplay.textContent = `Ziel: ${state.winsToChampion} Siege`;
 
       // Kehren Grid
       renderKehren();
@@ -562,7 +557,7 @@
     // ----- Punkte setzen -----
     function setPoints(team, index, value) {
       if (hasWinner()) {
-        toast('🏆 Traing entschieden!');
+        toast('🏆 Meisterschaft entschieden!');
         return;
       }
 
@@ -633,12 +628,12 @@
       state.winsB = 0;
       state.pointsA = Array(state.kehren).fill(null);
       state.pointsB = Array(state.kehren).fill(null);
-      state.teamA = 'Mannschaft W';
-      state.teamB = 'Mannschaft E';
+      state.teamA = 'Mannschaft A';
+      state.teamB = 'Mannschaft B';
       teamAInput.value = state.teamA;
       teamBInput.value = state.teamB;
       render();
-      toast('🔄 Meisterschaft zurückgesetzt');
+      toast('↺ Meisterschaft zurückgesetzt');
     }
 
     // ----- Spectator (einfacher Monitor) -----
@@ -679,7 +674,7 @@
           <div class="team"><div class="name">${state.teamA}</div><div class="score">${sum(state.pointsA)}</div><div class="wins">🏆 ${state.winsA}</div></div>
           <div class="team"><div class="name">${state.teamB}</div><div class="score">${sum(state.pointsB)}</div><div class="wins">🏆 ${state.winsB}</div></div>
         </div>
-        <div style="margin-top:12px; font-size:1.1rem;">${state.winsA} : ${state.winsB}  (Ziel ${state.winsToChampion})</div>
+        <div style="margin-top:12px; font-size:1.1rem;">${state.winsA} : ${state.winsB}</div>
       `;
     }
 
