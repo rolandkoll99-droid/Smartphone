@@ -1,4 +1,6 @@
-Smartphone Version 
-Getestet mit Iphone
+Raspbeery/PC Version
 
-Optimale Darstellung im Querformat
+Bedienbar mit Externer Tastatur Ziffernblock
+Internet Verbindung von Vorteil
+Kann aber direkt auch gestartet werden.
+
