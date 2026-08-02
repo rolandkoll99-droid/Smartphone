@@ -1,924 +1,811 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-<title>Trainingsmodus PRO</title>
-
-<style>
-:root{
-    --green:#1f5e3a;
-    --red:#b93a32;
-    --gold:#ffdf8c;
-    --dark:#102417;
-    --light:#eef5e9;
-    --border:#d7e4cf;
-}
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    -webkit-tap-highlight-color: transparent;
-}
-
-html, body {
-    height: 100%;
-    height: 100dvh;
-    overflow: hidden;
-}
-
-body{
-    font-family:Segoe UI,Arial,sans-serif;
-    background:linear-gradient(135deg,#17351f,#0d1f13);
-    color:#222;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.header{
-    position: sticky;
-    top: 0;
-    z-index: 500;
-    background:var(--green);
-    color:rgb(14, 13, 13);
-    padding:10px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    flex-wrap:wrap;
-    gap:12px;
-    flex-shrink:0;
-}
-
-.header h1{
-    font-size:1.6rem;
-}
-
-.header-controls{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    align-items:center;
-}
-
-button,
-select,
-input{
-    border:none;
-    border-radius:20px;
-    padding:10px 14px;
-    font-size:1rem;
-    touch-action: manipulation;
-}
-
-button{
-    cursor:pointer;
-    background:var(--green);
-    color:white;
-    font-weight:700;
-    touch-action: manipulation;
-    transition: transform 0.1s;
-}
-
-button:active {
-    transform: scale(0.95);
-}
-
-.layout{
-    flex: 1;
-    padding:16px;
-    overflow: hidden;
-    min-height: 0;
-}
-
-.arena{
-    width:100%;
-    max-width:1200px;
-    height:100%;
-    background:white;
-    border-radius:22px;
-    overflow:hidden;
-    box-shadow:0 10px 30px rgba(0,0,0,.3);
-    display:flex;
-    flex-direction:column;
-    margin: 0 auto;
-}
-
-.arena-header{
-    background:var(--light);
-    padding:12px 16px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    flex-shrink:0;
-    flex-wrap:wrap;
-    gap:8px;
-}
-
-.arena-title{
-    font-size:1.6rem;
-    font-weight:900;
-    color:var(--green);
-    text-align:center;
-}
-
-.keyboard-hint {
-    background: var(--dark);
-    color: white;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-.scoreboard{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
-    padding:0 14px 14px;
-    flex-shrink:0;
-}
-
-.score-card{
-    background:#f7faf5;
-    border-radius:18px;
-    padding:16px 20px;
-    text-align:center;
-    border-bottom:8px solid var(--green);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    transition: all 0.3s ease;
-}
-
-.score-card.red{
-    border-bottom-color:var(--red);
-}
-
-/* ===== DEUTLICHE ROT/GRÜN MARKIERUNG BEI EINGABE ===== */
-.score-card.team-active-w {
-    background: #e8f5e9 !important;
-    border-bottom-color: #2e7d32 !important;
-    box-shadow: 0 0 30px rgba(76, 175, 80, 0.5) !important;
-    transform: scale(1.02);
-}
-
-.score-card.team-active-e {
-    background: #ffebee !important;
-    border-bottom-color: #c62828 !important;
-    box-shadow: 0 0 30px rgba(244, 67, 54, 0.5) !important;
-    transform: scale(1.02);
-}
-
-.team-info{
-    display:flex;
-    flex-direction:column;
-    align-items:flex-start;
-    gap:2px;
-}
-
-.team-name{
-    font-size:1.2rem;
-    font-weight:900;
-}
-
-.team-name .key-hint {
-    font-size: 0.8rem;
-    color: #888;
-    font-weight: 400;
-}
-
-.team-score{
-    font-size:3.4rem;
-    font-weight:900;
-    color:var(--green);
-    line-height:1;
-}
-
-.score-card.red .team-score{
-    color:var(--red);
-}
-
-.team-wins{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    background:var(--dark);
-    color:white;
-    padding:6px 16px;
-    border-radius:10px;
-    font-weight:700;
-    font-size:1.2rem;
-    white-space:nowrap;
-}
-
-.team-wins span{
-    font-size:1.4rem;
-}
-
-.kehren-wrapper{
-    flex:1;
-    overflow-y:auto;
-    padding:0 14px 14px;
-    min-height:0;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-y;
-}
-
-.kehren-wrapper::-webkit-scrollbar{
-    width:8px;
-}
-
-.kehren-wrapper::-webkit-scrollbar-track{
-    background:#f0f0f0;
-    border-radius:10px;
-}
-
-.kehren-wrapper::-webkit-scrollbar-thumb{
-   background:var(--green);
-    border-radius:10px;
-}
-
-.kehren-wrapper::-webkit-scrollbar-thumb:hover{
-    background:#0d3d22;
-}
-
-.kehren{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:14px;
-}
-
-.kehren-title{
-    text-align:center;
-    font-weight:900;
-    margin-bottom:8px;
-}
-
-.kehre-row{
-    display:grid;
-    grid-template-columns:90px 1fr 45px;
-    gap:8px;
-    align-items:center;
-    background:white;
-    border:2px solid var(--border);
-    border-radius:14px;
-    padding:8px;
-    margin-bottom:8px;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    touch-action: manipulation;
-}
-
-.kehre-row:active {
-    transform: scale(0.98);
-}
-
-.kehre-row.active{
-    border:3px solid #4caf50;
-    background:#f3fff2;
-    box-shadow: 0 0 20px rgba(76, 175, 80, 0.2);
-}
-
-.kehre-row.completed{
-    border:3px solid #ff9800;
-    background:#fff8e1;
-}
-
-.kehre-row.delete-mode{
-    border:3px solid #ff0000;
-    background:#fff0f0;
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
-}
-
-.kehre-number{
-    font-size:.9rem;
-    font-weight:900;
-    text-align:center;
-}
-
-.points{
-    display:flex;
-    gap:6px;
-    justify-content:center;
-    flex-wrap:wrap;
-}
-
-.point-btn{
-    width:44px;
-    height:44px;
-    border-radius:10px;
-    border:2px solid var(--border);
-    background:white;
-    color:black;
-    font-weight:900;
-    font-size:16px;
-    touch-action: manipulation;
-    transition: all 0.15s;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-}
-
-.point-btn:active {
-    transform: scale(0.92);
-    background:var(--green);
-    color:white;
-}
-
-.point-btn.active-point{
-    background:var(--green);
-    color:white;
-    border-color:var(--green);
-}
-
-.kehre-value{
-    text-align:center;
-    font-weight:900;
-    font-size:1.1rem;
-}
-
-.footer{
-    position: sticky;
-    bottom: 0;
-    z-index: 100;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:10px;
-    flex-wrap:wrap;
-    padding:14px;
-    border-top:1px solid var(--border);
-    flex-shrink:0;
-    background: white;
-}
-
-.footer .footer-left {
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    justify-content:center;
-}
-
-.footer .footer-right {
-    font-size:0.85rem;
-    color:#555;
-    background:var(--light);
-    padding:4px 14px;
-    border-radius:30px;
-    font-weight:500;
-    letter-spacing:0.3px;
-    margin-left:20px;
-}
-
-.gold{
-    background:var(--gold);
-    color:black;
-}
-
-.gold:active{
-    background:#f0c860;
-}
-
-.toast{
-    position:fixed;
-    bottom:20px;
-    left:50%;
-    transform:translateX(-50%);
-    background:#111;
-    color:white;
-    padding:14px 20px;
-    border-radius:14px;
-    opacity:0;
-    transition:.3s;
-    z-index:9999;
-    pointer-events: none;
-    font-size:1rem;
-    max-width:90%;
-    text-align:center;
-}
-
-.toast.show{
-    opacity:1;
-}
-
-.toast.winner{
-    background: #4caf50;
-    font-weight:700;
-    font-size:1.2rem;
-}
-
-.toast.delete-mode{
-    background: #ff6b6b;
-    font-weight:700;
-}
-
-.player-selector{
-    display:flex;
-    gap:8px;
-    align-items:center;
-    background:rgba(255,255,255,0.15);
-    padding:4px 12px 4px 8px;
-    border-radius:40px;
-}
-
-.player-selector label{
-    font-weight:600;
-    font-size:0.9rem;
-}
-
-.player-selector select{
-    background:white;
-    color:black;
-    padding:6px 10px;
-    border-radius:30px;
-    font-weight:700;
-}
-
-/* Keyboard Highlight */
-.team-selected-w {
-    background: #4caf50 !important;
-    border-color: #4caf50 !important;
-}
-
-.team-selected-e {
-    background: #ff6b6b !important;
-    border-color: #ff6b6b !important;
-}
-
-/* Status-Anzeige für Tastatureingabe */
-.keyboard-status {
-    font-size: 0.85rem;
-    padding: 4px 12px;
-    border-radius: 20px;
-    background: #f0f0f0;
-    color: #333;
-    font-weight: 600;
-}
-
-.keyboard-status.waiting {
-    background: #ffd93d;
-}
-
-.keyboard-status.team-e {
-    background: #ff6b6b;
-    color: white;
-}
-
-.keyboard-status.team-w {
-    background: #4caf50;
-    color: white;
-}
-
-.keyboard-status.training-ended {
-    background: #9c27b0;
-    color: white;
-}
-
-.keyboard-status.delete-mode {
-    background: #ff0000;
-    color: white;
-    animation: blink 0.8s ease-in-out infinite;
-}
-
-@keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-
-/* Training beendet Overlay */
-.training-ended-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.7);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 20000;
-    backdrop-filter: blur(5px);
-}
-
-.training-ended-overlay.show {
-    display: flex;
-}
-
-.training-ended-box {
-    background: white;
-    border-radius: 30px;
-    padding: 50px;
-    max-width: 500px;
-    width: 90%;
-    text-align: center;
-    animation: pulse 1.5s ease-in-out;
-}
-
-@keyframes pulse {
-    0% { transform: scale(0.9); opacity: 0; }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-.training-ended-box .trophy {
-    font-size: 4rem;
-    margin-bottom: 10px;
-}
-
-.training-ended-box h2 {
-    font-size: 2rem;
-    margin-bottom: 10px;
-    color: var(--green);
-}
-
-.training-ended-box .winner-name {
-    font-size: 2.5rem;
-    font-weight: 900;
-    color: var(--red);
-    margin: 15px 0;
-}
-
-.training-ended-box .score-summary {
-    font-size: 1.2rem;
-    color: #555;
-    margin: 10px 0 20px;
-}
-
-.training-ended-box .enter-hint {
-    font-size: 0.9rem;
-    color: #888;
-    margin-top: 10px;
-    padding: 8px;
-    background: #f5f5f5;
-    border-radius: 8px;
-}
-
-.training-ended-box button {
-    padding: 12px 30px;
-    font-size: 1.1rem;
-    background: var(--green);
-    color: white;
-    border-radius: 12px;
-    border: none;
-    cursor: pointer;
-    font-weight: 700;
-}
-
-/* ===== ZUSCHAUERMONITOR – NEUE TAB ANSICHT ===== */
-.spectator-container {
-    padding: 20px;
-    max-width: 1400px;
-    margin: 0 auto;
-    font-family: Segoe UI, Arial, sans-serif;
-    background: #1a2a22;
-    min-height: 100vh;
-    color: #fff;
-}
-
-.spectator-container h1 {
-    color: #ffdf8c;
-    font-size: 2.8rem;
-    text-align: center;
-    margin-bottom: 30px;
-    border-bottom: 3px solid rgba(255,223,140,0.3);
-    padding-bottom: 15px;
-    font-weight: 700;
-    letter-spacing: 2px;
-}
-
-.spectator-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
-}
-
-.spectator-team {
-    background: #0f1f17;
-    border-radius: 24px;
-    padding: 30px 20px;
-    text-align: center;
-    border-bottom: 10px solid #4caf50;
-    box-shadow: 0 8px 0 rgba(0,0,0,0.3);
-}
-
-.spectator-team.red {
-    border-bottom-color: #ff6b6b;
-}
-
-.spectator-team .team-label {
-    font-weight: 900;
-    font-size: 2.2rem;
-    color: #fff;
-    margin-bottom: 8px;
-    letter-spacing: 1px;
-}
-
-.spectator-team .team-score-big {
-    font-size: 7rem;
-    font-weight: 900;
-    color: #4caf50;
-    line-height: 1.1;
-    text-shadow: 0 4px 20px rgba(76,175,80,0.3);
-}
-
-.spectator-team.red .team-score-big {
-    color: #ff6b6b;
-    text-shadow: 0 4px 20px rgba(255,107,107,0.3);
-}
-
-.spectator-team .team-wins-big {
-    font-size: 1.6rem;
-    background: rgba(255,255,255,0.08);
-    color: #ffdf8c;
-    padding: 8px 28px;
-    border-radius: 40px;
-    display: inline-block;
-    margin-top: 10px;
-    font-weight: 700;
-    border: 1px solid rgba(255,223,140,0.2);
-}
-
-.spectator-details {
-    margin-top: 30px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
-    text-align: center;
-    background: #0a1810;
-    border-radius: 20px;
-    padding: 22px 16px;
-    border: 1px solid rgba(255,255,255,0.06);
-}
-
-.spectator-details .detail-item {
-    background: #14261c;
-    border-radius: 16px;
-    padding: 14px 8px;
-    border: 1px solid rgba(255,255,255,0.05);
-}
-
-.spectator-details .detail-label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #8aa89a;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.spectator-details .detail-value {
-    font-size: 2.6rem;
-    font-weight: 900;
-    color: #ffdf8c;
-    line-height: 1.3;
-}
-
-.spectator-kehren-verlauf {
-    margin-top: 30px;
-    background: #0a1810;
-    border-radius: 20px;
-    padding: 20px 24px;
-    border: 1px solid rgba(255,255,255,0.06);
-}
-
-.spectator-kehren-verlauf h4 {
-    color: #8aa89a;
-    font-size: 1.1rem;
-    margin-bottom: 16px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 600;
-}
-
-.spectator-verlauf-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-    gap: 10px;
-}
-
-.spectator-verlauf-item {
-    background: #14261c;
-    border-radius: 12px;
-    padding: 8px 4px;
-    text-align: center;
-    border: 1px solid rgba(255,255,255,0.06);
-    transition: 0.2s;
-}
-
-.spectator-verlauf-item.active-verlauf {
-    border: 2px solid #4caf50;
-    box-shadow: 0 0 20px rgba(76,175,80,0.2);
-}
-
-.spectator-verlauf-item .v-number {
-    font-weight: 700;
-    color: #8aa89a;
-    font-size: 0.85rem;
-}
-
-.spectator-verlauf-item .v-points {
-    font-weight: 900;
-    display: flex;
-    justify-content: space-around;
-    font-size: 1.2rem;
-    margin-top: 4px;
-}
-
-.spectator-verlauf-item .v-points .w { 
-    color: #4caf50; 
-}
-.spectator-verlauf-item .v-points .e { 
-    color: #ff6b6b; 
-}
-
-.spectator-status {
-    margin-top: 20px;
-    text-align: center;
-    padding: 12px;
-    background: #0a1810;
-    border-radius: 12px;
-    color: #8aa89a;
-    font-size: 0.9rem;
-    border: 1px solid rgba(255,255,255,0.05);
-}
-
-/* Große Bildschirme (TV/Monitor) */
-@media (min-width: 1400px) {
-    .spectator-container {
-        padding: 40px 60px;
-    }
-    .spectator-container h1 {
-        font-size: 3.4rem;
-    }
-    .spectator-team .team-score-big {
-        font-size: 9rem;
-    }
-    .spectator-team .team-label {
-        font-size: 2.8rem;
-    }
-    .spectator-details .detail-value {
-        font-size: 3.2rem;
-    }
-    .spectator-verlauf-grid {
-        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-        gap: 14px;
-    }
-    .spectator-verlauf-item .v-points {
-        font-size: 1.6rem;
-    }
-    .spectator-verlauf-item .v-number {
-        font-size: 1rem;
-    }
-}
-
-@media (max-width: 900px) {
-    .spectator-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    .spectator-team .team-score-big {
-        font-size: 5rem;
-    }
-    .spectator-details {
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-    }
-    .spectator-details .detail-value {
-        font-size: 2rem;
-    }
-    .spectator-verlauf-grid {
-        grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
-        gap: 8px;
-    }
-    .spectator-container h1 {
-        font-size: 2rem;
-    }
-}
-
-@media (max-width: 600px) {
-    .spectator-container {
-        padding: 12px;
-    }
-    .spectator-team .team-score-big {
-        font-size: 3.6rem;
-    }
-    .spectator-team .team-label {
-        font-size: 1.4rem;
-    }
-    .spectator-details {
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-        padding: 14px 10px;
-    }
-    .spectator-details .detail-value {
-        font-size: 1.6rem;
-    }
-    .spectator-verlauf-grid {
-        grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
-        gap: 6px;
-    }
-    .spectator-verlauf-item .v-points {
-        font-size: 0.9rem;
-    }
-    .spectator-container h1 {
-        font-size: 1.5rem;
-    }
-}
-
-/* ===== RESPONSIVE FÜR TABLETS ===== */
-@media (max-width: 900px) {
-    .scoreboard {
-        grid-template-columns: 1fr;
-        gap: 8px;
-    }
-    
-    .kehren {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-    
-    .point-btn {
-        width: 58px;
-        height: 58px;
-        font-size: 22px;
-        border-radius: 12px;
-    }
-    
-    .team-score {
-        font-size: 4rem;
-    }
-    
-    .kehre-row {
-        grid-template-columns: 80px 1fr 50px;
-        padding: 10px;
-        border-radius: 16px;
-    }
-    
-    .kehre-number {
-        font-size: 1rem;
-    }
-    
-    .kehre-value {
-        font-size: 1.3rem;
-    }
-    
-    .header h1 {
-        font-size: 1.3rem;
-    }
-    
-    .footer .footer-right {
-        margin-left: 0;
-    }
-}
-
-@media (max-width: 600px) {
-    .point-btn {
-        width: 48px;
-        height: 48px;
-        font-size: 18px;
-    }
-    
-    .kehre-row {
-        grid-template-columns: 60px 1fr 40px;
-        padding: 6px;
-        gap: 4px;
-    }
-    
-    .team-score {
-        font-size: 3rem;
-    }
-    
-    .header h1 {
-        font-size: 1.1rem;
-    }
-    
-    .header-controls select,
-    .header-controls button {
-        padding: 6px 10px;
-        font-size: 0.85rem;
-    }
-    
-    .training-ended-box {
-        padding: 30px 20px;
-    }
-    
-    .training-ended-box .winner-name {
-        font-size: 1.8rem;
-    }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <title>Trainingsmodus PRO · Teamnamen editierbar</title>
+    <style>
+        :root {
+            --green: #1f5e3a;
+            --red: #b93a32;
+            --gold: #ffdf8c;
+            --dark: #102417;
+            --light: #eef5e9;
+            --border: #d7e4cf;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            height: 100dvh;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #17351f, #0d1f13);
+            color: #222;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            background: var(--green);
+            color: rgb(14, 13, 13);
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 1.6rem;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        button, select, input {
+            border: none;
+            border-radius: 20px;
+            padding: 10px 14px;
+            font-size: 1rem;
+            touch-action: manipulation;
+        }
+
+        button {
+            cursor: pointer;
+            background: var(--green);
+            color: white;
+            font-weight: 700;
+            touch-action: manipulation;
+            transition: transform 0.1s;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .layout {
+            flex: 1;
+            padding: 16px;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .arena {
+            width: 100%;
+            max-width: 1200px;
+            height: 100%;
+            background: white;
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .3);
+            display: flex;
+            flex-direction: column;
+            margin: 0 auto;
+        }
+
+        .arena-header {
+            background: var(--light);
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .arena-title {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--green);
+            text-align: center;
+        }
+
+        .keyboard-hint {
+            background: var(--dark);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .scoreboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 0 14px 14px;
+            flex-shrink: 0;
+        }
+
+        .score-card {
+            background: #f7faf5;
+            border-radius: 18px;
+            padding: 16px 20px;
+            text-align: center;
+            border-bottom: 8px solid var(--green);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .score-card.red {
+            border-bottom-color: var(--red);
+        }
+
+        .score-card.team-active-w {
+            background: #e8f5e9 !important;
+            border-bottom-color: #2e7d32 !important;
+            box-shadow: 0 0 30px rgba(76, 175, 80, 0.5) !important;
+            transform: scale(1.02);
+        }
+
+        .score-card.team-active-e {
+            background: #ffebee !important;
+            border-bottom-color: #c62828 !important;
+            box-shadow: 0 0 30px rgba(244, 67, 54, 0.5) !important;
+            transform: scale(1.02);
+        }
+
+        .team-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .team-name-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .team-name {
+            font-size: 1.2rem;
+            font-weight: 900;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 8px;
+            transition: background 0.2s;
+            border: 2px solid transparent;
+            min-width: 60px;
+        }
+
+        .team-name:hover {
+            background: rgba(0,0,0,0.05);
+        }
+
+        .team-name-input {
+            font-size: 1.2rem;
+            font-weight: 900;
+            background: white;
+            border: 2px solid var(--green);
+            border-radius: 8px;
+            padding: 2px 8px;
+            width: auto;
+            min-width: 80px;
+            max-width: 180px;
+            color: #222;
+        }
+
+        .team-name-input.red-border {
+            border-color: var(--red);
+        }
+
+        .team-name .key-hint {
+            font-size: 0.8rem;
+            color: #888;
+            font-weight: 400;
+        }
+
+        .team-score {
+            font-size: 3.4rem;
+            font-weight: 900;
+            color: var(--green);
+            line-height: 1;
+        }
+
+        .score-card.red .team-score {
+            color: var(--red);
+        }
+
+        .team-wins {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--dark);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            white-space: nowrap;
+        }
+
+        .team-wins span {
+            font-size: 1.4rem;
+        }
+
+        .kehren-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 14px 14px;
+            min-height: 0;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+        }
+
+        .kehren-wrapper::-webkit-scrollbar {
+            width: 8px;
+        }
+        .kehren-wrapper::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+        .kehren-wrapper::-webkit-scrollbar-thumb {
+            background: var(--green);
+            border-radius: 10px;
+        }
+
+        .kehren {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .kehren-title {
+            text-align: center;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+
+        .kehre-row {
+            display: grid;
+            grid-template-columns: 90px 1fr 45px;
+            gap: 8px;
+            align-items: center;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 8px;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        .kehre-row:active {
+            transform: scale(0.98);
+        }
+
+        .kehre-row.active {
+            border: 3px solid #4caf50;
+            background: #f3fff2;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.2);
+        }
+
+        .kehre-row.completed {
+            border: 3px solid #ff9800;
+            background: #fff8e1;
+        }
+
+        .kehre-row.delete-mode {
+            border: 3px solid #ff0000;
+            background: #fff0f0;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
+        }
+
+        .kehre-number {
+            font-size: .9rem;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .points {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .point-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            border: 2px solid var(--border);
+            background: white;
+            color: black;
+            font-weight: 900;
+            font-size: 16px;
+            touch-action: manipulation;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .point-btn:active {
+            transform: scale(0.92);
+            background: var(--green);
+            color: white;
+        }
+
+        .point-btn.active-point {
+            background: var(--green);
+            color: white;
+            border-color: var(--green);
+        }
+
+        .kehre-value {
+            text-align: center;
+            font-weight: 900;
+            font-size: 1.1rem;
+        }
+
+        .footer {
+            position: sticky;
+            bottom: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 14px;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+            background: white;
+        }
+
+        .footer .footer-left {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .footer .footer-right {
+            font-size: 0.85rem;
+            color: #555;
+            background: var(--light);
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            margin-left: 20px;
+        }
+
+        .gold {
+            background: var(--gold);
+            color: black;
+        }
+
+        .gold:active {
+            background: #f0c860;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #111;
+            color: white;
+            padding: 14px 20px;
+            border-radius: 14px;
+            opacity: 0;
+            transition: .3s;
+            z-index: 9999;
+            pointer-events: none;
+            font-size: 1rem;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .toast.winner {
+            background: #4caf50;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .toast.delete-mode {
+            background: #ff6b6b;
+            font-weight: 700;
+        }
+
+        .player-selector {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 4px 12px 4px 8px;
+            border-radius: 40px;
+        }
+
+        .player-selector label {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .player-selector select {
+            background: white;
+            color: black;
+            padding: 6px 10px;
+            border-radius: 30px;
+            font-weight: 700;
+        }
+
+        .keyboard-status {
+            font-size: 0.85rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: #f0f0f0;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .keyboard-status.waiting {
+            background: #ffd93d;
+        }
+
+        .keyboard-status.team-e {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .keyboard-status.team-w {
+            background: #4caf50;
+            color: white;
+        }
+
+        .keyboard-status.training-ended {
+            background: #9c27b0;
+            color: white;
+        }
+
+        .keyboard-status.delete-mode {
+            background: #ff0000;
+            color: white;
+            animation: blink 0.8s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .training-ended-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 20000;
+            backdrop-filter: blur(5px);
+        }
+
+        .training-ended-overlay.show {
+            display: flex;
+        }
+
+        .training-ended-box {
+            background: white;
+            border-radius: 30px;
+            padding: 50px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            animation: pulse 1.5s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .training-ended-box .trophy {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+
+        .training-ended-box h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--green);
+        }
+
+        .training-ended-box .winner-name {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--red);
+            margin: 15px 0;
+        }
+
+        .training-ended-box .score-summary {
+            font-size: 1.2rem;
+            color: #555;
+            margin: 10px 0 20px;
+        }
+
+        .training-ended-box .enter-hint {
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 10px;
+            padding: 8px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        .training-ended-box button {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            background: var(--green);
+            color: white;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        /* Spectator styles */
+        .spectator-container {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #1a2a22;
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .spectator-container h1 {
+            color: #ffdf8c;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid rgba(255, 223, 140, 0.3);
+            padding-bottom: 15px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .spectator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .spectator-team {
+            background: #0f1f17;
+            border-radius: 24px;
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 10px solid #4caf50;
+            box-shadow: 0 8px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .spectator-team.red {
+            border-bottom-color: #ff6b6b;
+        }
+
+        .spectator-team .team-label {
+            font-weight: 900;
+            font-size: 2.2rem;
+            color: #fff;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .spectator-team .team-score-big {
+            font-size: 7rem;
+            font-weight: 900;
+            color: #4caf50;
+            line-height: 1.1;
+            text-shadow: 0 4px 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .spectator-team.red .team-score-big {
+            color: #ff6b6b;
+            text-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .spectator-team .team-wins-big {
+            font-size: 1.6rem;
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffdf8c;
+            padding: 8px 28px;
+            border-radius: 40px;
+            display: inline-block;
+            margin-top: 10px;
+            font-weight: 700;
+            border: 1px solid rgba(255, 223, 140, 0.2);
+        }
+
+        .spectator-details {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+            text-align: center;
+            background: #0a1810;
+            border-radius: 20px;
+            padding: 22px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .spectator-details .detail-item {
+            background: #14261c;
+            border-radius: 16px;
+            padding: 14px 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .spectator-details .detail-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #8aa89a;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .spectator-details .detail-value {
+            font-size: 2.6rem;
+            font-weight: 900;
+            color: #ffdf8c;
+            line-height: 1.3;
+        }
+
+        .spectator-kehren-verlauf {
+            margin-top: 30px;
+            background: #0a1810;
+            border-radius: 20px;
+            padding: 20px 24px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .spectator-kehren-verlauf h4 {
+            color: #8aa89a;
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .spectator-verlauf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 10px;
+        }
+
+        .spectator-verlauf-item {
+            background: #14261c;
+            border-radius: 12px;
+            padding: 8px 4px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: 0.2s;
+        }
+
+        .spectator-verlauf-item.active-verlauf {
+            border: 2px solid #4caf50;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.2);
+        }
+
+        .spectator-verlauf-item .v-number {
+            font-weight: 700;
+            color: #8aa89a;
+            font-size: 0.85rem;
+        }
+
+        .spectator-verlauf-item .v-points {
+            font-weight: 900;
+            display: flex;
+            justify-content: space-around;
+            font-size: 1.2rem;
+            margin-top: 4px;
+        }
+
+        .spectator-verlauf-item .v-points .w { color: #4caf50; }
+        .spectator-verlauf-item .v-points .e { color: #ff6b6b; }
+
+        .spectator-status {
+            margin-top: 20px;
+            text-align: center;
+            padding: 12px;
+            background: #0a1810;
+            border-radius: 12px;
+            color: #8aa89a;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Responsive */
+        @media (min-width: 1400px) {
+            .spectator-container { padding: 40px 60px; }
+            .spectator-container h1 { font-size: 3.4rem; }
+            .spectator-team .team-score-big { font-size: 9rem; }
+            .spectator-team .team-label { font-size: 2.8rem; }
+            .spectator-details .detail-value { font-size: 3.2rem; }
+            .spectator-verlauf-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 14px; }
+            .spectator-verlauf-item .v-points { font-size: 1.6rem; }
+            .spectator-verlauf-item .v-number { font-size: 1rem; }
+        }
+
+        @media (max-width: 900px) {
+            .spectator-grid { grid-template-columns: 1fr; gap: 20px; }
+            .spectator-team .team-score-big { font-size: 5rem; }
+            .spectator-details { grid-template-columns: 1fr 1fr; gap: 12px; }
+            .spectator-details .detail-value { font-size: 2rem; }
+            .spectator-verlauf-grid { grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 8px; }
+            .spectator-container h1 { font-size: 2rem; }
+            .scoreboard { grid-template-columns: 1fr; gap: 8px; }
+            .kehren { grid-template-columns: 1fr; gap: 10px; }
+            .point-btn { width: 58px; height: 58px; font-size: 22px; border-radius: 12px; }
+            .team-score { font-size: 4rem; }
+            .kehre-row { grid-template-columns: 80px 1fr 50px; padding: 10px; border-radius: 16px; }
+            .header h1 { font-size: 1.3rem; }
+            .footer .footer-right { margin-left: 0; }
+        }
+
+        @media (max-width: 600px) {
+            .spectator-container { padding: 12px; }
+            .spectator-team .team-score-big { font-size: 3.6rem; }
+            .spectator-team .team-label { font-size: 1.4rem; }
+            .spectator-details { grid-template-columns: 1fr 1fr; gap: 8px; padding: 14px 10px; }
+            .spectator-details .detail-value { font-size: 1.6rem; }
+            .spectator-verlauf-grid { grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 6px; }
+            .spectator-verlauf-item .v-points { font-size: 0.9rem; }
+            .spectator-container h1 { font-size: 1.5rem; }
+            .point-btn { width: 48px; height: 48px; font-size: 18px; }
+            .kehre-row { grid-template-columns: 60px 1fr 40px; padding: 6px; gap: 4px; }
+            .team-score { font-size: 3rem; }
+            .header h1 { font-size: 1.1rem; }
+            .header-controls select, .header-controls button { padding: 6px 10px; font-size: 0.85rem; }
+            .training-ended-box { padding: 30px 20px; }
+            .training-ended-box .winner-name { font-size: 1.8rem; }
+        }
+    </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>🥌 Trainingsmodus PRO</h1>
-
+    <h1>🥌 ESV Grein</h1>
     <div class="header-controls">
         <span class="keyboard-status" id="keyboardStatus">🔑 Bereit</span>
-
         <div class="player-selector">
             <label for="playerCount">👥</label>
             <select id="playerCount">
@@ -928,7 +815,6 @@ button:active {
                 <option value="6">6 Spieler</option>
             </select>
         </div>
-
         <select id="gamesSelect">
             <option value="2" selected>2 Siege</option>
             <option value="3">3 Siege</option>
@@ -936,13 +822,11 @@ button:active {
             <option value="5">5 Siege</option>
             <option value="6">6 Siege</option>
         </select>
-
         <select id="kehrenSelect">
             <option value="4">4 Kehren</option>
             <option value="6" selected>6 Kehren</option>
             <option value="8">8 Kehren</option>
         </select>
-
         <button onclick="fullReset()" style="background:#b93a32;">↺</button>
     </div>
 </div>
@@ -964,880 +848,945 @@ button:active {
 <div class="toast" id="toast"></div>
 
 <script>
-// ===== STATE =====
-const state = {
-    kehren: 6,
-    winsToChampion: 2,
-    playerCount: 4,
-    arena: createArena(1),
-    selectedTeam: null,  // 'w' oder 'e'
-    selectedPlayer: null, // 1-6
-    isTrainingEnded: false,
-    deleteMode: false,
-    spectatorWindow: null
-};
+    // ============================================================
+    // STATE
+    // ============================================================
+    const state = {
+        kehren: 6,
+        winsToChampion: 2,
+        playerCount: 4,
+        arena: createArena(1),
+        selectedTeam: null,  // 'w' oder 'e'
+        selectedPlayer: null, // 1-6
+        isTrainingEnded: false,
+        deleteMode: false,
+        spectatorWindow: null,
+        // Teamnamen (Standard)
+        teamNameW: 'Mannschaft W',
+        teamNameE: 'Mannschaft E'
+    };
 
-// ===== KEYBOARD-SYSTEM =====
-function setupKeyboard() {
-    document.addEventListener('keydown', function(e) {
-        // ENTER für Neustart / Wertung
-        if (e.key === 'Enter' || e.key === 'NumpadEnter') {
-            e.preventDefault();
-            if (state.isTrainingEnded) {
-                startNewTraining();
-                toast('🔄 Neues Training gestartet!');
-            } else if (state.deleteMode) {
-                exitDeleteMode();
-                toast('Löschmodus beendet');
-            } else {
-                evaluateGame();
+    // ============================================================
+    // HELPER
+    // ============================================================
+    function createArena(id) {
+        return {
+            id: id,
+            teamA: 'Mannschaft W',
+            teamB: 'Mannschaft E',
+            pointsA: Array(6).fill(null),
+            pointsB: Array(6).fill(null),
+            winsA: 0,
+            winsB: 0
+        };
+    }
+
+    function sum(arr) {
+        return arr.reduce((a, b) => a + (b || 0), 0);
+    }
+
+    function activeKehre(arena) {
+        for (let i = 0; i < state.kehren; i++) {
+            if (arena.pointsA[i] === null || arena.pointsB[i] === null) {
+                return i + 1;
             }
-            return;
         }
+        return state.kehren;
+    }
 
-        // ESC zum Beenden des Löschmodus
-        if (e.key === 'Escape') {
-            if (state.deleteMode) {
+    function hasWinner(arena) {
+        return arena.winsA >= state.winsToChampion || arena.winsB >= state.winsToChampion;
+    }
+
+    function winnerName(arena) {
+        if (arena.winsA >= state.winsToChampion) return state.teamNameW;
+        if (arena.winsB >= state.winsToChampion) return state.teamNameE;
+        return '';
+    }
+
+    function checkAllKehrenFull(arena) {
+        for (let i = 0; i < state.kehren; i++) {
+            if (arena.pointsA[i] === null || arena.pointsB[i] === null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function toast(msg, type) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = 'toast show';
+        if (type === 'delete') {
+            t.classList.add('delete-mode');
+        }
+        if (type === 'winner') {
+            t.classList.add('winner');
+        }
+        clearTimeout(t._timeout);
+        t._timeout = setTimeout(() => {
+            t.classList.remove('show');
+            t.className = 'toast';
+        }, 3000);
+    }
+
+    // ============================================================
+    // KEYBOARD
+    // ============================================================
+    function setupKeyboard() {
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === 'NumpadEnter') {
                 e.preventDefault();
-                exitDeleteMode();
-                toast('Löschmodus beendet');
+                if (state.isTrainingEnded) {
+                    startNewTraining();
+                    toast('🔄 Neues Training gestartet!');
+                } else if (state.deleteMode) {
+                    exitDeleteMode();
+                    toast('Löschmodus beendet');
+                } else {
+                    evaluateGame();
+                }
                 return;
             }
-            if (document.fullscreenElement) {
-                document.exitFullscreen();
+
+            if (e.key === 'Escape') {
+                if (state.deleteMode) {
+                    e.preventDefault();
+                    exitDeleteMode();
+                    toast('Löschmodus beendet');
+                    return;
+                }
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                }
+                return;
             }
+
+            if (state.isTrainingEnded) return;
+
+            if (e.key === '*' || e.key === 'Asterisk' || e.key === 'Multiply') {
+                e.preventDefault();
+                toggleDeleteMode();
+                return;
+            }
+
+            if (state.deleteMode) {
+                const keyNum = parseInt(e.key);
+                if (keyNum >= 1 && keyNum <= 9) {
+                    e.preventDefault();
+                    deleteKehre(keyNum - 1);
+                    return;
+                }
+                if (e.key.startsWith('Numpad')) {
+                    const numMap = {
+                        'Numpad1': 1, 'Numpad2': 2, 'Numpad3': 3,
+                        'Numpad4': 4, 'Numpad5': 5, 'Numpad6': 6,
+                        'Numpad7': 7, 'Numpad8': 8, 'Numpad9': 9
+                    };
+                    const num = numMap[e.key];
+                    if (num && num <= state.kehren) {
+                        e.preventDefault();
+                        deleteKehre(num - 1);
+                        return;
+                    }
+                }
+                return;
+            }
+
+            if (e.key === '-' || e.key === 'Minus' || e.key === 'Subtract') {
+                e.preventDefault();
+                selectTeam('e');
+                toast(`🔴 ${state.teamNameE} ausgewählt`);
+                return;
+            }
+
+            if (e.key === '+' || e.key === 'Plus' || e.key === 'Add' || e.key === '=') {
+                e.preventDefault();
+                selectTeam('w');
+                toast(`⚪ ${state.teamNameW} ausgewählt`);
+                return;
+            }
+
+            const keyNum = parseInt(e.key);
+            if (keyNum >= 1 && keyNum <= 6) {
+                if (keyNum <= state.playerCount) {
+                    e.preventDefault();
+                    selectPlayer(keyNum);
+                    addPointsToSelectedTeam();
+                } else {
+                    toast(`⚠️ Nur ${state.playerCount} Spieler vorhanden`);
+                }
+                return;
+            }
+
+            if (e.key.startsWith('Numpad')) {
+                const numMap = {
+                    'Numpad1': 1, 'Numpad2': 2, 'Numpad3': 3,
+                    'Numpad4': 4, 'Numpad5': 5, 'Numpad6': 6
+                };
+                const playerNum = numMap[e.key];
+                if (playerNum && playerNum <= state.playerCount) {
+                    e.preventDefault();
+                    selectPlayer(playerNum);
+                    addPointsToSelectedTeam();
+                    return;
+                }
+            }
+
+            // / für Zuschauer
+            if (e.key === '/' || e.key === 'Slash' || e.key === 'Divide') {
+                e.preventDefault();
+                openSpectatorTab();
+            }
+        });
+    }
+
+    // ============================================================
+    // TEAM NAMEN EDITIEREN
+    // ============================================================
+    function startTeamNameEdit(team) {
+        if (state.isTrainingEnded) {
+            toast('Training ist beendet! [Enter] für Neustart');
             return;
         }
+        const arena = state.arena;
+        const currentName = team === 'w' ? state.teamNameW : state.teamNameE;
+        const newName = prompt(`Name für ${team === 'w' ? '⚪' : '🔴'} Team eingeben:`, currentName);
+        if (newName !== null && newName.trim() !== '') {
+            const trimmed = newName.trim();
+            if (team === 'w') {
+                state.teamNameW = trimmed;
+                arena.teamA = trimmed;
+            } else {
+                state.teamNameE = trimmed;
+                arena.teamB = trimmed;
+            }
+            render();
+            updateSpectatorInWindow();
+            toast(`✅ Teamname geändert: ${trimmed}`);
+        }
+    }
+
+    // ============================================================
+    // TEAM AUSWAHL
+    // ============================================================
+    function selectTeam(team) {
+        if (state.isTrainingEnded || state.deleteMode) {
+            if (state.deleteMode) toast('Löschmodus aktiv - [Enter] beenden');
+            else toast('Training ist beendet! [Enter] für Neustart');
+            return;
+        }
+        state.selectedTeam = team;
+        state.selectedPlayer = null;
+        updateKeyboardStatus(team === 'w' ? 'w' : 'e');
+        render();
+    }
+
+    function selectPlayer(playerNum) {
+        if (state.isTrainingEnded || state.deleteMode) {
+            if (state.deleteMode) toast('Löschmodus aktiv - [Enter] beenden');
+            else toast('Training ist beendet! [Enter] für Neustart');
+            return;
+        }
+        if (!state.selectedTeam) {
+            toast('⚠️ Bitte zuerst Team wählen (- für E, + für W)');
+            return;
+        }
+        state.selectedPlayer = playerNum;
+    }
+
+    // ============================================================
+    // PUNKTE VERGEBEN
+    // ============================================================
+    function addPointsToSelectedTeam() {
+        if (state.isTrainingEnded || state.deleteMode) {
+            if (state.deleteMode) toast('Löschmodus aktiv - [Enter] beenden');
+            else toast('Training ist beendet! [Enter] für Neustart');
+            return;
+        }
+
+        if (!state.selectedTeam || !state.selectedPlayer) {
+            toast('⚠️ Bitte zuerst Team und Spieler wählen');
+            return;
+        }
+
+        const arena = state.arena;
+        const activeIndex = activeKehre(arena) - 1;
+
+        if (activeIndex >= state.kehren) {
+            toast('📊 Alle Kehren gespielt - Wertung läuft...');
+            setTimeout(() => evaluateGame(), 500);
+            return;
+        }
+
+        if (hasWinner(arena)) {
+            endTraining(arena);
+            return;
+        }
+
+        const team = state.selectedTeam;
+        const playerValue = state.selectedPlayer;
+
+        if (team === 'w') {
+            arena.pointsA[activeIndex] = playerValue;
+            if (arena.pointsB[activeIndex] === null) {
+                arena.pointsB[activeIndex] = 0;
+            }
+        } else {
+            arena.pointsB[activeIndex] = playerValue;
+            if (arena.pointsA[activeIndex] === null) {
+                arena.pointsA[activeIndex] = 0;
+            }
+        }
+
+        state.selectedTeam = null;
+        state.selectedPlayer = null;
+        updateKeyboardStatus();
+
+        render();
+        updateSpectatorInWindow();
+
+        const teamName = team === 'w' ? state.teamNameW : state.teamNameE;
+        const otherTeam = team === 'w' ? state.teamNameE : state.teamNameW;
+        const otherValue = team === 'w' ? arena.pointsB[activeIndex] : arena.pointsA[activeIndex];
+
+        toast(`✅ ${teamName}: ${playerValue} | ${otherTeam}: ${otherValue} (auto)`);
+
+        if (checkAllKehrenFull(arena)) {
+            setTimeout(() => {
+                toast('📊 Alle Kehren gespielt - Wertung läuft...');
+                setTimeout(() => evaluateGame(), 500);
+            }, 300);
+        }
+
+        setTimeout(() => scrollToActiveKehre(), 300);
+    }
+
+    // ============================================================
+    // SPIEL WERTEN
+    // ============================================================
+    function evaluateGame() {
+        const arena = state.arena;
 
         if (state.isTrainingEnded) {
-            return;
-        }
-
-        // STERN für Löschmodus
-        if (e.key === '*' || e.key === 'Asterisk' || e.key === 'Multiply') {
-            e.preventDefault();
-            toggleDeleteMode();
+            toast('Training ist beendet! [Enter] für Neustart');
             return;
         }
 
         if (state.deleteMode) {
-            const keyNum = parseInt(e.key);
-            if (keyNum >= 1 && keyNum <= 9) {
-                e.preventDefault();
-                deleteKehre(keyNum - 1);
-                return;
-            }
-            if (e.key.startsWith('Numpad')) {
-                const numMap = {
-                    'Numpad1': 1, 'Numpad2': 2, 'Numpad3': 3,
-                    'Numpad4': 4, 'Numpad5': 5, 'Numpad6': 6,
-                    'Numpad7': 7, 'Numpad8': 8, 'Numpad9': 9
-                };
-                const num = numMap[e.key];
-                if (num && num <= state.kehren) {
-                    e.preventDefault();
-                    deleteKehre(num - 1);
-                    return;
-                }
-            }
+            toast('Löschmodus aktiv - [Enter] beenden');
             return;
         }
 
-        // Teamauswahl: - = E, + = W
-        if (e.key === '-' || e.key === 'Minus' || e.key === 'Subtract') {
-            e.preventDefault();
-            selectTeam('e');
-            toast('🔴 Mannschaft E ausgewählt');
+        if (hasWinner(arena)) {
+            endTraining(arena);
             return;
         }
 
-        if (e.key === '+' || e.key === 'Plus' || e.key === 'Add' || e.key === '=') {
-            e.preventDefault();
-            selectTeam('w');
-            toast('⚪ Mannschaft W ausgewählt');
-            return;
-        }
-
-        // Spielerauswahl (1-6)
-        const keyNum = parseInt(e.key);
-        if (keyNum >= 1 && keyNum <= 6) {
-            if (keyNum <= state.playerCount) {
-                e.preventDefault();
-                selectPlayer(keyNum);
-                addPointsToSelectedTeam();
-            } else {
-                toast(`⚠️ Nur ${state.playerCount} Spieler vorhanden`);
-            }
-            return;
-        }
-
-        if (e.key.startsWith('Numpad')) {
-            const numMap = {
-                'Numpad1': 1, 'Numpad2': 2, 'Numpad3': 3,
-                'Numpad4': 4, 'Numpad5': 5, 'Numpad6': 6
-            };
-            const playerNum = numMap[e.key];
-            if (playerNum && playerNum <= state.playerCount) {
-                e.preventDefault();
-                selectPlayer(playerNum);
-                addPointsToSelectedTeam();
+        for (let i = 0; i < state.kehren; i++) {
+            if (arena.pointsA[i] === null || arena.pointsB[i] === null) {
+                toast('Bitte alle Kehren ausfüllen');
                 return;
             }
         }
-    });
-}
 
-// ===== ZUSCHAUERMONITOR IM NEUEN TAB =====
-function openSpectatorTab() {
-    const url = window.location.href.split('?')[0] + '?spectator=true';
-    state.spectatorWindow = window.open(url, '_blank', 'width=1400,height=900,menubar=no,status=no,toolbar=no');
-    if (state.spectatorWindow) {
-        toast('📺 Zuschauermonitor im neuen Tab geöffnet');
-        // Kurze Verzögerung, damit der Tab geladen wird
-        setTimeout(() => {
-            if (state.spectatorWindow && !state.spectatorWindow.closed) {
-                // Update nach Öffnen
+        const a = sum(arena.pointsA);
+        const b = sum(arena.pointsB);
+
+        let gameResult = '';
+        if (a > b) {
+            arena.winsA++;
+            gameResult = `⚪ ${state.teamNameW} gewinnt (${a}:${b})`;
+            toast(gameResult);
+        } else if (b > a) {
+            arena.winsB++;
+            gameResult = `🔴 ${state.teamNameE} gewinnt (${a}:${b})`;
+            toast(gameResult);
+        } else {
+            gameResult = `Unentschieden (${a}:${b})`;
+            toast(gameResult);
+        }
+
+        arena.pointsA = Array(state.kehren).fill(null);
+        arena.pointsB = Array(state.kehren).fill(null);
+
+        render();
+        updateSpectatorInWindow();
+
+        if (hasWinner(arena)) {
+            setTimeout(() => endTraining(arena), 1000);
+        } else {
+            setTimeout(() => {
+                toast(`🔄 Neues Spiel beginnt! Stand: ${state.teamNameW} ${arena.winsA} : ${arena.winsB} ${state.teamNameE}`);
+                render();
                 updateSpectatorInWindow();
-            }
-        }, 500);
-    } else {
-        toast('⚠️ Bitte Popups für diese Seite erlauben');
-    }
-}
-
-function updateSpectatorInWindow() {
-    if (state.spectatorWindow && !state.spectatorWindow.closed) {
-        try {
-            state.spectatorWindow.updateSpectatorContent(state.arena, state.kehren, state.winsToChampion);
-        } catch(e) {
-            // Fenster ist möglicherweise noch nicht bereit oder geschlossen
-        }
-    }
-}
-
-// ===== TEAM AUSWAHL MIT ROT/GRÜN MARKIERUNG =====
-function selectTeam(team) {
-    if (state.isTrainingEnded || state.deleteMode) {
-        if (state.deleteMode) toast('Löschmodus aktiv - [Enter] beenden');
-        else toast('Training ist beendet! [Enter] für Neustart');
-        return;
-    }
-    state.selectedTeam = team;
-    state.selectedPlayer = null;
-    updateKeyboardStatus(team === 'w' ? 'w' : 'e');
-    render();
-}
-
-function selectPlayer(playerNum) {
-    if (state.isTrainingEnded || state.deleteMode) {
-        if (state.deleteMode) toast('Löschmodus aktiv - [Enter] beenden');
-        else toast('Training ist beendet! [Enter] für Neustart');
-        return;
-    }
-    if (!state.selectedTeam) {
-        toast('⚠️ Bitte zuerst Team wählen (- für E, + für W)');
-        return;
-    }
-    state.selectedPlayer = playerNum;
-}
-
-// ===== PUNKTE VERGEBEN =====
-function addPointsToSelectedTeam() {
-    if (state.isTrainingEnded || state.deleteMode) {
-        if (state.deleteMode) toast('Löschmodus aktiv - [Enter] beenden');
-        else toast('Training ist beendet! [Enter] für Neustart');
-        return;
-    }
-    
-    if (!state.selectedTeam || !state.selectedPlayer) {
-        toast('⚠️ Bitte zuerst Team und Spieler wählen');
-        return;
-    }
-
-    const arena = state.arena;
-    const activeIndex = activeKehre(arena) - 1;
-
-    if (activeIndex >= state.kehren) {
-        toast('📊 Alle Kehren gespielt - Wertung läuft...');
-        setTimeout(() => evaluateGame(), 500);
-        return;
-    }
-
-    if (hasWinner(arena)) {
-        endTraining(arena);
-        return;
-    }
-
-    const team = state.selectedTeam;
-    const playerValue = state.selectedPlayer;
-    
-    if (team === 'w') {
-        arena.pointsA[activeIndex] = playerValue;
-        if (arena.pointsB[activeIndex] === null) {
-            arena.pointsB[activeIndex] = 0;
-        }
-    } else {
-        arena.pointsB[activeIndex] = playerValue;
-        if (arena.pointsA[activeIndex] === null) {
-            arena.pointsA[activeIndex] = 0;
+            }, 500);
         }
     }
 
-    state.selectedTeam = null;
-    state.selectedPlayer = null;
-    updateKeyboardStatus();
+    // ============================================================
+    // TRAINING BEENDEN
+    // ============================================================
+    function endTraining(arena) {
+        state.isTrainingEnded = true;
+        updateKeyboardStatus();
 
-    render();
-    updateSpectatorInWindow();
-    
-    const teamName = team === 'w' ? 'Mannschaft W' : 'Mannschaft E';
-    const otherTeam = team === 'w' ? 'Mannschaft E' : 'Mannschaft W';
-    const otherValue = team === 'w' ? arena.pointsB[activeIndex] : arena.pointsA[activeIndex];
-    
-    toast(`✅ ${teamName}: ${playerValue} | ${otherTeam}: ${otherValue} (auto)`);
+        const winner = winnerName(arena);
+        const overlay = document.getElementById('trainingEndedOverlay');
+        const winnerEl = document.getElementById('winnerName');
+        const summaryEl = document.getElementById('scoreSummary');
 
-    if (checkAllKehrenFull(arena)) {
-        setTimeout(() => {
-            toast('📊 Alle Kehren gespielt - Wertung läuft...');
-            setTimeout(() => evaluateGame(), 500);
-        }, 300);
+        winnerEl.textContent = winner;
+        winnerEl.style.color = winner === state.teamNameW ? '#4caf50' : '#ff6b6b';
+        summaryEl.textContent = `Siege: ${arena.winsA} : ${arena.winsB}`;
+
+        overlay.classList.add('show');
+        updateSpectatorInWindow();
+
+        const toastEl = document.getElementById('toast');
+        toastEl.textContent = `🏆 ${winner} gewinnt das Training! [Enter] für Neustart`;
+        toastEl.className = 'toast show winner';
+        clearTimeout(toastEl._timeout);
+        toastEl._timeout = setTimeout(() => {
+            toastEl.classList.remove('show');
+            toastEl.className = 'toast';
+        }, 5000);
     }
 
-    setTimeout(() => scrollToActiveKehre(), 300);
-}
+    function startNewTraining() {
+        const overlay = document.getElementById('trainingEndedOverlay');
+        overlay.classList.remove('show');
 
-// ===== SPIEL WERTEN =====
-function evaluateGame() {
-    const arena = state.arena;
-
-    if (state.isTrainingEnded) {
-        toast('Training ist beendet! [Enter] für Neustart');
-        return;
+        state.isTrainingEnded = false;
+        state.deleteMode = false;
+        state.arena = createArena(1);
+        state.arena.teamA = state.teamNameW;
+        state.arena.teamB = state.teamNameE;
+        state.selectedTeam = null;
+        state.selectedPlayer = null;
+        updateKeyboardStatus();
+        render();
+        updateSpectatorInWindow();
+        toast('🔄 Neues Training gestartet!');
     }
 
-    if (state.deleteMode) {
-        toast('Löschmodus aktiv - [Enter] beenden');
-        return;
-    }
-
-    if (hasWinner(arena)) {
-        endTraining(arena);
-        return;
-    }
-
-    for (let i = 0; i < state.kehren; i++) {
-        if (arena.pointsA[i] === null || arena.pointsB[i] === null) {
-            toast('Bitte alle Kehren ausfüllen');
+    // ============================================================
+    // LÖSCHMODUS
+    // ============================================================
+    function toggleDeleteMode() {
+        if (state.isTrainingEnded) {
+            toast('Training ist beendet! [Enter] für Neustart');
             return;
         }
+        state.deleteMode = !state.deleteMode;
+        if (state.deleteMode) {
+            updateKeyboardStatus('delete');
+            toast('🗑️ Löschmodus aktiv - Kehre 1-8 wählen', 'delete');
+            highlightDeleteRows();
+        } else {
+            exitDeleteMode();
+        }
     }
 
-    const a = sum(arena.pointsA);
-    const b = sum(arena.pointsB);
-
-    let gameResult = '';
-    if (a > b) {
-        arena.winsA++;
-        gameResult = `⚪ Mannschaft W gewinnt (${a}:${b})`;
-        toast(gameResult);
-    } else if (b > a) {
-        arena.winsB++;
-        gameResult = `🔴 Mannschaft E gewinnt (${a}:${b})`;
-        toast(gameResult);
-    } else {
-        gameResult = `Unentschieden (${a}:${b})`;
-        toast(gameResult);
-    }
-
-    arena.pointsA = Array(state.kehren).fill(null);
-    arena.pointsB = Array(state.kehren).fill(null);
-
-    render();
-    updateSpectatorInWindow();
-
-    if (hasWinner(arena)) {
-        setTimeout(() => endTraining(arena), 1000);
-    } else {
-        setTimeout(() => {
-            toast(`🔄 Neues Spiel beginnt! Stand: W ${arena.winsA} : ${arena.winsB} E`);
-            render();
-            updateSpectatorInWindow();
-        }, 500);
-    }
-}
-
-// ===== TRAINING BEENDEN =====
-function endTraining(arena) {
-    state.isTrainingEnded = true;
-    updateKeyboardStatus();
-    
-    const winner = winnerName(arena);
-    const overlay = document.getElementById('trainingEndedOverlay');
-    const winnerEl = document.getElementById('winnerName');
-    const summaryEl = document.getElementById('scoreSummary');
-    
-    winnerEl.textContent = winner;
-    winnerEl.style.color = winner === 'Mannschaft W' ? '#4caf50' : '#ff6b6b';
-    summaryEl.textContent = `Siege: ${arena.winsA} : ${arena.winsB}`;
-    
-    overlay.classList.add('show');
-    updateSpectatorInWindow();
-    
-    const toastEl = document.getElementById('toast');
-    toastEl.textContent = `🏆 ${winner} gewinnt das Training! [Enter] für Neustart`;
-    toastEl.className = 'toast show winner';
-    clearTimeout(toastEl._timeout);
-    toastEl._timeout = setTimeout(() => {
-        toastEl.classList.remove('show');
-        toastEl.className = 'toast';
-    }, 5000);
-}
-
-function startNewTraining() {
-    const overlay = document.getElementById('trainingEndedOverlay');
-    overlay.classList.remove('show');
-    
-    state.isTrainingEnded = false;
-    state.deleteMode = false;
-    state.arena = createArena(1);
-    state.selectedTeam = null;
-    state.selectedPlayer = null;
-    updateKeyboardStatus();
-    render();
-    updateSpectatorInWindow();
-    toast('🔄 Neues Training gestartet!');
-}
-
-// ===== LÖSCHMODUS =====
-function toggleDeleteMode() {
-    if (state.isTrainingEnded) {
-        toast('Training ist beendet! [Enter] für Neustart');
-        return;
-    }
-    
-    state.deleteMode = !state.deleteMode;
-    
-    if (state.deleteMode) {
-        updateKeyboardStatus('delete');
-        toast('🗑️ Löschmodus aktiv - Kehre 1-8 wählen', 'delete');
-        highlightDeleteRows();
-    } else {
-        exitDeleteMode();
-    }
-}
-
-function exitDeleteMode() {
-    state.deleteMode = false;
-    updateKeyboardStatus();
-    const rows = document.querySelectorAll('.kehre-row');
-    rows.forEach(row => row.classList.remove('delete-mode'));
-}
-
-function highlightDeleteRows() {
-    setTimeout(() => {
-        const rows = document.querySelectorAll('.kehre-row');
-        rows.forEach((row, index) => {
-            const arena = state.arena;
-            if (index < state.kehren) {
-                const hasValue = arena.pointsA[index] !== null || arena.pointsB[index] !== null;
-                if (hasValue) {
-                    row.classList.add('delete-mode');
-                }
-            }
-        });
-    }, 100);
-}
-
-function deleteKehre(index) {
-    const arena = state.arena;
-    if (index >= state.kehren) {
-        toast(`⚠️ Kehre ${index + 1} existiert nicht (1-${state.kehren})`);
-        return;
-    }
-    if (arena.pointsA[index] === null && arena.pointsB[index] === null) {
-        toast(`Kehre ${index + 1} ist bereits leer`);
-        return;
-    }
-    arena.pointsA[index] = null;
-    arena.pointsB[index] = null;
-    toast(`✅ Kehre ${index + 1} gelöscht`);
-    exitDeleteMode();
-    render();
-    updateSpectatorInWindow();
-    setTimeout(() => render(), 100);
-}
-
-// ===== STATUS UPDATE =====
-function updateKeyboardStatus(type, player) {
-    const statusEl = document.getElementById('keyboardStatus');
-    
-    if (state.isTrainingEnded) {
-        statusEl.textContent = '🏁 Training beendet - [Enter] für Neustart';
-        statusEl.className = 'keyboard-status training-ended';
-        return;
-    }
-    
-    if (state.deleteMode) {
-        statusEl.textContent = '🗑️ Löschmodus: Kehre 1-8 wählen | [Enter] abbrechen';
-        statusEl.className = 'keyboard-status delete-mode';
-        return;
-    }
-    
-    if (type === 'e') {
-        statusEl.textContent = '🔴 E ausgewählt - Spieler wählen (1-6)';
-        statusEl.className = 'keyboard-status team-e';
-    } else if (type === 'w') {
-        statusEl.textContent = '⚪ W ausgewählt - Spieler wählen (1-6)';
-        statusEl.className = 'keyboard-status team-w';
-    } else if (type === 'player') {
-        statusEl.textContent = `👤 Spieler ${player} - Punkt vergeben`;
-        statusEl.className = 'keyboard-status waiting';
-    } else {
-        statusEl.textContent = '🔑 Bereit - [-]/[+] Team wählen | [*] Löschen | [/] Zuschauer';
-        statusEl.className = 'keyboard-status';
-    }
-}
-
-// ===== RENDER =====
-function render() {
-    document.getElementById('layout').innerHTML = renderArena(state.arena);
-    scrollToActiveKehre();
-    if (!state.isTrainingEnded) {
+    function exitDeleteMode() {
+        state.deleteMode = false;
         updateKeyboardStatus();
+        const rows = document.querySelectorAll('.kehre-row');
+        rows.forEach(row => row.classList.remove('delete-mode'));
     }
-    if (state.deleteMode) {
-        highlightDeleteRows();
+
+    function highlightDeleteRows() {
+        setTimeout(() => {
+            const rows = document.querySelectorAll('.kehre-row');
+            rows.forEach((row, index) => {
+                const arena = state.arena;
+                if (index < state.kehren) {
+                    const hasValue = arena.pointsA[index] !== null || arena.pointsB[index] !== null;
+                    if (hasValue) {
+                        row.classList.add('delete-mode');
+                    }
+                }
+            });
+        }, 100);
     }
-}
 
-function renderArena(arena) {
-    const scoreA = sum(arena.pointsA);
-    const scoreB = sum(arena.pointsB);
-    const activeIndex = activeKehre(arena) - 1;
-    
-    // CSS-Klassen für Team-Markierung
-    const teamWClass = state.selectedTeam === 'w' ? 'team-active-w' : '';
-    const teamEClass = state.selectedTeam === 'e' ? 'team-active-e' : '';
+    function deleteKehre(index) {
+        const arena = state.arena;
+        if (index >= state.kehren) {
+            toast(`⚠️ Kehre ${index + 1} existiert nicht (1-${state.kehren})`);
+            return;
+        }
+        if (arena.pointsA[index] === null && arena.pointsB[index] === null) {
+            toast(`Kehre ${index + 1} ist bereits leer`);
+            return;
+        }
+        arena.pointsA[index] = null;
+        arena.pointsB[index] = null;
+        toast(`✅ Kehre ${index + 1} gelöscht`);
+        exitDeleteMode();
+        render();
+        updateSpectatorInWindow();
+        setTimeout(() => render(), 100);
+    }
 
-    return `
-    <div class="arena">
-        <div class="arena-header">
-            <div class="arena-title">🥌 Trainingsmodus PRO</div>
-            <div class="keyboard-hint">
-                - 🔴 E &nbsp;|&nbsp; + ⚪ W &nbsp;|&nbsp; 1-6 👤 &nbsp;|&nbsp; * 🗑️ Löschen &nbsp;|&nbsp; Enter ⏎ Wertung &nbsp;|&nbsp; / 📺 Zuschauer (neuer Tab)
-            </div>
-        </div>
+    // ============================================================
+    // STATUS UPDATE
+    // ============================================================
+    function updateKeyboardStatus(type, player) {
+        const statusEl = document.getElementById('keyboardStatus');
 
-        <div class="scoreboard">
-            <div class="score-card ${teamWClass}">
-                <div class="team-info">
-                    <div class="team-name">⚪ Mannschaft W <span class="key-hint">[+]</span></div>
-                    <div class="team-score">${scoreA}</div>
+        if (state.isTrainingEnded) {
+            statusEl.textContent = '🏁 Training beendet - [Enter] für Neustart';
+            statusEl.className = 'keyboard-status training-ended';
+            return;
+        }
+
+        if (state.deleteMode) {
+            statusEl.textContent = '🗑️ Löschmodus: Kehre 1-8 wählen | [Enter] abbrechen';
+            statusEl.className = 'keyboard-status delete-mode';
+            return;
+        }
+
+        if (type === 'e') {
+            statusEl.textContent = `🔴 ${state.teamNameE} ausgewählt - Spieler wählen (1-6)`;
+            statusEl.className = 'keyboard-status team-e';
+        } else if (type === 'w') {
+            statusEl.textContent = `⚪ ${state.teamNameW} ausgewählt - Spieler wählen (1-6)`;
+            statusEl.className = 'keyboard-status team-w';
+        } else if (type === 'player') {
+            statusEl.textContent = `👤 Spieler ${player} - Punkt vergeben`;
+            statusEl.className = 'keyboard-status waiting';
+        } else {
+            statusEl.textContent = '🔑 Bereit - [-]/[+] Team wählen | [*] Löschen | [/] Zuschauer | Klick auf Teamname zum Umbenennen';
+            statusEl.className = 'keyboard-status';
+        }
+    }
+
+    // ============================================================
+    // ZUSCHAUERMONITOR
+    // ============================================================
+    function openSpectatorTab() {
+        const url = window.location.href.split('?')[0] + '?spectator=true';
+        state.spectatorWindow = window.open(url, '_blank', 'width=1400,height=900,menubar=no,status=no,toolbar=no');
+        if (state.spectatorWindow) {
+            toast('📺 Zuschauermonitor im neuen Tab geöffnet');
+            setTimeout(() => {
+                if (state.spectatorWindow && !state.spectatorWindow.closed) {
+                    updateSpectatorInWindow();
+                }
+            }, 500);
+        } else {
+            toast('⚠️ Bitte Popups für diese Seite erlauben');
+        }
+    }
+
+    function updateSpectatorInWindow() {
+        if (state.spectatorWindow && !state.spectatorWindow.closed) {
+            try {
+                state.spectatorWindow.updateSpectatorContent(state.arena, state.kehren, state.winsToChampion, state.teamNameW, state.teamNameE);
+            } catch (e) {}
+        }
+    }
+
+    // ============================================================
+    // RENDER
+    // ============================================================
+    function render() {
+        document.getElementById('layout').innerHTML = renderArena(state.arena);
+        scrollToActiveKehre();
+        if (!state.isTrainingEnded) {
+            updateKeyboardStatus();
+        }
+        if (state.deleteMode) {
+            highlightDeleteRows();
+        }
+    }
+
+    function renderArena(arena) {
+        const scoreA = sum(arena.pointsA);
+        const scoreB = sum(arena.pointsB);
+        const activeIndex = activeKehre(arena) - 1;
+
+        const teamWClass = state.selectedTeam === 'w' ? 'team-active-w' : '';
+        const teamEClass = state.selectedTeam === 'e' ? 'team-active-e' : '';
+
+        const teamWName = state.teamNameW;
+        const teamEName = state.teamNameE;
+
+        return `
+        <div class="arena">
+            <div class="arena-header">
+                <div class="arena-title">🥌 Trainingsmodus PRO</div>
+                <div class="keyboard-hint">
+                    - 🔴 ${teamEName} &nbsp;|&nbsp; + ⚪ ${teamWName} &nbsp;|&nbsp; 1-6 👤 &nbsp;|&nbsp; * 🗑️ Löschen &nbsp;|&nbsp; Enter ⏎ Wertung &nbsp;|&nbsp; / 📺 Zuschauer
                 </div>
-                <div class="team-wins">
-                    <span>🏆</span> ${arena.winsA}
+            </div>
+
+            <div class="scoreboard">
+                <div class="score-card ${teamWClass}">
+                    <div class="team-info">
+                        <div class="team-name-wrap">
+                            <span class="team-name" onclick="startTeamNameEdit('w')" title="Klick zum Umbenennen">
+                                ⚪ ${teamWName} <span class="key-hint">[+]</span>
+                            </span>
+                        </div>
+                        <div class="team-score">${scoreA}</div>
+                    </div>
+                    <div class="team-wins">
+                        <span>🏆</span> ${arena.winsA}
+                    </div>
+                </div>
+
+                <div class="score-card red ${teamEClass}">
+                    <div class="team-info">
+                        <div class="team-name-wrap">
+                            <span class="team-name" onclick="startTeamNameEdit('e')" title="Klick zum Umbenennen">
+                                🔴 ${teamEName} <span class="key-hint">[-]</span>
+                            </span>
+                        </div>
+                        <div class="team-score">${scoreB}</div>
+                    </div>
+                    <div class="team-wins">
+                        <span>🏆</span> ${arena.winsB}
+                    </div>
                 </div>
             </div>
 
-            <div class="score-card red ${teamEClass}">
-                <div class="team-info">
-                    <div class="team-name">🔴 Mannschaft E <span class="key-hint">[-]</span></div>
-                    <div class="team-score">${scoreB}</div>
-                </div>
-                <div class="team-wins">
-                    <span>🏆</span> ${arena.winsB}
-                </div>
-            </div>
-        </div>
-
-        <div class="kehren-wrapper" id="kehrenWrapper">
-            <div class="kehren">
-                <div>
-                    <div class="kehren-title">⚪ Mannschaft W</div>
-                    ${renderKehren(arena, 'A', activeIndex)}
-                </div>
-                <div>
-                    <div class="kehren-title">🔴 Mannschaft E</div>
-                    ${renderKehren(arena, 'B', activeIndex)}
+            <div class="kehren-wrapper" id="kehrenWrapper">
+                <div class="kehren">
+                    <div>
+                        <div class="kehren-title">⚪ ${teamWName}</div>
+                        ${renderKehren(arena, 'A', activeIndex)}
+                    </div>
+                    <div>
+                        <div class="kehren-title">🔴 ${teamEName}</div>
+                        ${renderKehren(arena, 'B', activeIndex)}
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="footer">
-            <div class="footer-left">
-                <button class="gold" onclick="evaluateGame()">Spiel Werten ⏎</button>
-                <button onclick="resetGame()">Neues Spiel Starten</button>
-                <button onclick="toggleDeleteMode()">🗑️ Kehre Löschen *</button>
-                <button onclick="openSpectatorTab()" style="background:#6c5ce7;">📺 Zuschauer (neuer Tab) /</button>
+            <div class="footer">
+                <div class="footer-left">
+                    <button class="gold" onclick="evaluateGame()">Spiel Werten ⏎</button>
+                    <button onclick="resetGame()">Neues Spiel Starten</button>
+                    <button onclick="toggleDeleteMode()">🗑️ Kehre Löschen *</button>
+                    <button onclick="openSpectatorTab()" style="background:#6c5ce7;">📺 Zuschauer (neuer Tab) /</button>
+                </div>
+                <div class="footer-right">@Roland Koll Version 2.0 · Teamnamen editierbar</div>
             </div>
-            <div class="footer-right">@Roland Koll Version 1.7</div>
-        </div>
-    </div>
-    `;
-}
-
-function renderKehren(arena, team, activeIndex) {
-    let html = '';
-    const arr = team === 'A' ? arena.pointsA : arena.pointsB;
-
-    for (let i = 0; i < state.kehren; i++) {
-        const active = activeIndex === i;
-        const bothCompleted = arena.pointsA[i] !== null && arena.pointsB[i] !== null;
-        const maxPoints = state.playerCount;
-
-        html += `
-        <div class="kehre-row ${active ? 'active' : ''} ${bothCompleted ? 'completed' : ''}" 
-             data-kehre="${i}" 
-             data-team="${team}">
-            <div class="kehre-number">${i + 1}</div>
-            <div class="points">
-                ${Array.from({length: maxPoints + 1}, (_, v) => `
-                    <button class="point-btn ${arr[i] === v ? 'active-point' : ''}"
-                            onclick="event.stopPropagation(); setPoints('${team}', ${i}, ${v})"
-                            data-value="${v}">
-                        ${v}
-                    </button>
-                `).join('')}
-            </div>
-            <div class="kehre-value">${arr[i] !== null ? arr[i] : '-'}</div>
         </div>
         `;
     }
-    return html;
-}
 
-function setPoints(team, index, value) {
-    const arena = state.arena;
+    function renderKehren(arena, team, activeIndex) {
+        let html = '';
+        const arr = team === 'A' ? arena.pointsA : arena.pointsB;
 
-    if (state.isTrainingEnded) {
-        toast('Training ist beendet! [Enter] für Neustart');
-        return;
-    }
+        for (let i = 0; i < state.kehren; i++) {
+            const active = activeIndex === i;
+            const bothCompleted = arena.pointsA[i] !== null && arena.pointsB[i] !== null;
+            const maxPoints = state.playerCount;
 
-    if (state.deleteMode) {
-        toast('Löschmodus aktiv - [Enter] beenden');
-        return;
-    }
-
-    if (hasWinner(arena)) {
-        endTraining(arena);
-        return;
-    }
-
-    if (team === 'A') {
-        arena.pointsA[index] = value;
-        if (arena.pointsB[index] === null) {
-            arena.pointsB[index] = 0;
+            html += `
+            <div class="kehre-row ${active ? 'active' : ''} ${bothCompleted ? 'completed' : ''}" 
+                 data-kehre="${i}" 
+                 data-team="${team}">
+                <div class="kehre-number">${i + 1}</div>
+                <div class="points">
+                    ${Array.from({ length: maxPoints + 1 }, (_, v) => `
+                        <button class="point-btn ${arr[i] === v ? 'active-point' : ''}"
+                                onclick="event.stopPropagation(); setPoints('${team}', ${i}, ${v})"
+                                data-value="${v}">
+                            ${v}
+                        </button>
+                    `).join('')}
+                </div>
+                <div class="kehre-value">${arr[i] !== null ? arr[i] : '-'}</div>
+            </div>
+            `;
         }
-    } else {
-        arena.pointsB[index] = value;
-        if (arena.pointsA[index] === null) {
-            arena.pointsA[index] = 0;
+        return html;
+    }
+
+    function setPoints(team, index, value) {
+        const arena = state.arena;
+
+        if (state.isTrainingEnded) {
+            toast('Training ist beendet! [Enter] für Neustart');
+            return;
         }
-    }
 
-    render();
-    updateSpectatorInWindow();
-    
-    const teamName = team === 'A' ? 'Mannschaft W' : 'Mannschaft E';
-    const otherTeam = team === 'A' ? 'Mannschaft E' : 'Mannschaft W';
-    const otherValue = team === 'A' ? arena.pointsB[index] : arena.pointsA[index];
-    toast(`📊 ${teamName}: ${value} | ${otherTeam}: ${otherValue} (auto)`);
-
-    if (checkAllKehrenFull(arena)) {
-        setTimeout(() => {
-            toast('📊 Alle Kehren gespielt - Wertung läuft...');
-            setTimeout(() => evaluateGame(), 500);
-        }, 300);
-    }
-}
-
-// ===== HELFER =====
-function createArena(id) {
-    return {
-        id,
-        teamA: 'Mannschaft W',
-        teamB: 'Mannschaft E',
-        pointsA: Array(6).fill(null),
-        pointsB: Array(6).fill(null),
-        winsA: 0,
-        winsB: 0
-    };
-}
-
-function activeKehre(arena) {
-    for (let i = 0; i < state.kehren; i++) {
-        if (arena.pointsA[i] === null || arena.pointsB[i] === null) {
-            return i + 1;
+        if (state.deleteMode) {
+            toast('Löschmodus aktiv - [Enter] beenden');
+            return;
         }
-    }
-    return state.kehren;
-}
 
-function hasWinner(arena) {
-    return arena.winsA >= state.winsToChampion || arena.winsB >= state.winsToChampion;
-}
-
-function winnerName(arena) {
-    if (arena.winsA >= state.winsToChampion) return 'Mannschaft W';
-    if (arena.winsB >= state.winsToChampion) return 'Mannschaft E';
-    return '';
-}
-
-function sum(arr) {
-    return arr.reduce((a, b) => a + (b || 0), 0);
-}
-
-function checkAllKehrenFull(arena) {
-    for (let i = 0; i < state.kehren; i++) {
-        if (arena.pointsA[i] === null || arena.pointsB[i] === null) {
-            return false;
+        if (hasWinner(arena)) {
+            endTraining(arena);
+            return;
         }
-    }
-    return true;
-}
 
-function scrollToActiveKehre() {
-    setTimeout(() => {
-        const wrapper = document.getElementById('kehrenWrapper');
-        if (!wrapper) return;
-        const activeRow = wrapper.querySelector('.kehre-row.active');
-        if (activeRow) {
-            const wrapperRect = wrapper.getBoundingClientRect();
-            const rowRect = activeRow.getBoundingClientRect();
-            const isVisible = rowRect.top >= wrapperRect.top + 10 && rowRect.bottom <= wrapperRect.bottom - 10;
-            if (!isVisible) {
-                activeRow.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        if (team === 'A') {
+            arena.pointsA[index] = value;
+            if (arena.pointsB[index] === null) {
+                arena.pointsB[index] = 0;
+            }
+        } else {
+            arena.pointsB[index] = value;
+            if (arena.pointsA[index] === null) {
+                arena.pointsA[index] = 0;
             }
         }
-    }, 50);
-}
 
-function resetGame() {
-    if (state.isTrainingEnded) {
-        startNewTraining();
-        return;
+        render();
+        updateSpectatorInWindow();
+
+        const teamName = team === 'A' ? state.teamNameW : state.teamNameE;
+        const otherTeam = team === 'A' ? state.teamNameE : state.teamNameW;
+        const otherValue = team === 'A' ? arena.pointsB[index] : arena.pointsA[index];
+        toast(`📊 ${teamName}: ${value} | ${otherTeam}: ${otherValue} (auto)`);
+
+        if (checkAllKehrenFull(arena)) {
+            setTimeout(() => {
+                toast('📊 Alle Kehren gespielt - Wertung läuft...');
+                setTimeout(() => evaluateGame(), 500);
+            }, 300);
+        }
     }
-    if (state.deleteMode) {
-        exitDeleteMode();
+
+    // ============================================================
+    // RESET / SCROLL
+    // ============================================================
+    function resetGame() {
+        if (state.isTrainingEnded) {
+            startNewTraining();
+            return;
+        }
+        if (state.deleteMode) {
+            exitDeleteMode();
+        }
+        const arena = state.arena;
+        arena.pointsA = Array(state.kehren).fill(null);
+        arena.pointsB = Array(state.kehren).fill(null);
+        arena.winsA = 0;
+        arena.winsB = 0;
+        state.selectedTeam = null;
+        state.selectedPlayer = null;
+        updateKeyboardStatus();
+        render();
+        updateSpectatorInWindow();
+        toast('Spiel neu gestartet');
     }
-    const arena = state.arena;
-    arena.pointsA = Array(state.kehren).fill(null);
-    arena.pointsB = Array(state.kehren).fill(null);
-    arena.winsA = 0;
-    arena.winsB = 0;
-    state.selectedTeam = null;
-    state.selectedPlayer = null;
-    updateKeyboardStatus();
-    render();
-    updateSpectatorInWindow();
-    toast('Spiel neu gestartet');
-}
 
-function fullReset() {
-    state.arena = createArena(1);
-    state.selectedTeam = null;
-    state.selectedPlayer = null;
-    state.isTrainingEnded = false;
-    state.deleteMode = false;
-    updateKeyboardStatus();
-    document.getElementById('trainingEndedOverlay').classList.remove('show');
-    render();
-    updateSpectatorInWindow();
-    toast('Kompletter Reset');
-}
-
-function toast(msg, type) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = 'toast show';
-    if (type === 'delete') {
-        t.classList.add('delete-mode');
+    function fullReset() {
+        state.arena = createArena(1);
+        state.arena.teamA = state.teamNameW;
+        state.arena.teamB = state.teamNameE;
+        state.selectedTeam = null;
+        state.selectedPlayer = null;
+        state.isTrainingEnded = false;
+        state.deleteMode = false;
+        updateKeyboardStatus();
+        document.getElementById('trainingEndedOverlay').classList.remove('show');
+        render();
+        updateSpectatorInWindow();
+        toast('Kompletter Reset');
     }
-    clearTimeout(t._timeout);
-    t._timeout = setTimeout(() => {
-        t.classList.remove('show');
-        t.className = 'toast';
-    }, 3000);
-}
 
-// ===== EVENT-LISTENER =====
-document.getElementById('playerCount').addEventListener('change', function(e) {
-    if (state.isTrainingEnded) {
-        toast('Training ist beendet! [Enter] für Neustart');
-        return;
+    function scrollToActiveKehre() {
+        setTimeout(() => {
+            const wrapper = document.getElementById('kehrenWrapper');
+            if (!wrapper) return;
+            const activeRow = wrapper.querySelector('.kehre-row.active');
+            if (activeRow) {
+                const wrapperRect = wrapper.getBoundingClientRect();
+                const rowRect = activeRow.getBoundingClientRect();
+                const isVisible = rowRect.top >= wrapperRect.top + 10 && rowRect.bottom <= wrapperRect.bottom - 10;
+                if (!isVisible) {
+                    activeRow.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                }
+            }
+        }, 50);
     }
-    state.playerCount = Number(e.target.value);
-    state.selectedTeam = null;
-    state.selectedPlayer = null;
-    updateKeyboardStatus();
-    render();
-    updateSpectatorInWindow();
-    toast(`👥 ${state.playerCount} Spieler`);
-});
 
-document.getElementById('kehrenSelect').addEventListener('change', function(e) {
-    if (state.isTrainingEnded) {
-        toast('Training ist beendet! [Enter] für Neustart');
-        return;
-    }
-    state.kehren = Number(e.target.value);
-    state.arena.pointsA = Array(state.kehren).fill(null);
-    state.arena.pointsB = Array(state.kehren).fill(null);
-    state.selectedTeam = null;
-    state.selectedPlayer = null;
-    updateKeyboardStatus();
-    render();
-    updateSpectatorInWindow();
-});
+    // ============================================================
+    // SPECTATOR WINDOW FUNKTIONEN
+    // ============================================================
+    window.updateSpectatorContent = function(arena, kehren, winsToChampion, teamNameW, teamNameE) {
+        const scoreA = sum(arena.pointsA);
+        const scoreB = sum(arena.pointsB);
+        const activeK = activeKehre(arena);
+        const container = document.getElementById('spectatorContent');
+        if (!container) return;
 
-document.getElementById('gamesSelect').addEventListener('change', function(e) {
-    if (state.isTrainingEnded) {
-        toast('Training ist beendet! [Enter] für Neustart');
-        return;
-    }
-    state.winsToChampion = Number(e.target.value);
-    render();
-    updateSpectatorInWindow();
-});
+        const tW = teamNameW || 'Mannschaft W';
+        const tE = teamNameE || 'Mannschaft E';
 
-// ===== TASTATUR: / für Zuschauer im neuen Tab =====
-document.addEventListener('keydown', function(e) {
-    if (e.key === '/' || e.key === 'Slash' || e.key === 'Divide') {
-        e.preventDefault();
-        openSpectatorTab();
-    }
-});
+        let verlaufHtml = '';
+        for (let i = 0; i < kehren; i++) {
+            const aVal = arena.pointsA[i] !== null ? arena.pointsA[i] : '-';
+            const bVal = arena.pointsB[i] !== null ? arena.pointsB[i] : '-';
+            const isActive = (i === activeK - 1);
+            const isCompleted = arena.pointsA[i] !== null && arena.pointsB[i] !== null;
+            verlaufHtml += `
+                <div class="spectator-verlauf-item ${isActive ? 'active-verlauf' : ''}" style="${isCompleted ? 'border-color:#ff9800;' : ''}">
+                    <div class="v-number">${i + 1}</div>
+                    <div class="v-points">
+                        <span class="w">${aVal}</span>
+                        <span class="e">${bVal}</span>
+                    </div>
+                </div>
+            `;
+        }
 
-// ===== SPECTATOR WINDOW FUNKTIONEN (für den neuen Tab) =====
-window.updateSpectatorContent = function(arena, kehren, winsToChampion) {
-    const scoreA = sum(arena.pointsA);
-    const scoreB = sum(arena.pointsB);
-    const activeK = activeKehre(arena);
-    const container = document.getElementById('spectatorContent');
-    if (!container) return;
-    
-    let verlaufHtml = '';
-    for (let i = 0; i < kehren; i++) {
-        const aVal = arena.pointsA[i] !== null ? arena.pointsA[i] : '-';
-        const bVal = arena.pointsB[i] !== null ? arena.pointsB[i] : '-';
-        const isActive = (i === activeK - 1);
-        const isCompleted = arena.pointsA[i] !== null && arena.pointsB[i] !== null;
-        verlaufHtml += `
-            <div class="spectator-verlauf-item ${isActive ? 'active-verlauf' : ''}" style="${isCompleted ? 'border-color:#ff9800;' : ''}">
-                <div class="v-number">${i+1}</div>
-                <div class="v-points">
-                    <span class="w">${aVal}</span>
-                    <span class="e">${bVal}</span>
+        container.innerHTML = `
+            <div class="spectator-grid">
+                <div class="spectator-team">
+                    <div class="team-label">⚪ ${tW}</div>
+                    <div class="team-score-big">${scoreA}</div>
+                    <div class="team-wins-big">🏆 Siege: ${arena.winsA}</div>
+                </div>
+                <div class="spectator-team red">
+                    <div class="team-label">🔴 ${tE}</div>
+                    <div class="team-score-big">${scoreB}</div>
+                    <div class="team-wins-big">🏆 Siege: ${arena.winsB}</div>
+                </div>
+            </div>
+            <div class="spectator-details">
+                <div class="detail-item">
+                    <div class="detail-label">Aktuelle Kehre</div>
+                    <div class="detail-value">${activeK}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Aktueller Durchgang</div>
+                    <div class="detail-value">${arena.winsA + arena.winsB + 1}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Ergebnis (aktuell)</div>
+                    <div class="detail-value" style="font-size:2rem;">${scoreA} : ${scoreB}</div>
+                </div>
+            </div>
+            <div class="spectator-kehren-verlauf">
+                <h4>📊 Kehren-Verlauf</h4>
+                <div class="spectator-verlauf-grid">
+                    ${verlaufHtml}
+                </div>
+            </div>
+            <div class="spectator-status">
+                🔄 Aktualisiert automatisch • ${new Date().toLocaleTimeString()}
+            </div>
+        `;
+    };
+
+    // ============================================================
+    // SPECTATOR MODUS
+    // ============================================================
+    if (window.location.search.includes('spectator=true')) {
+        document.body.innerHTML = `
+            <div class="spectator-container">
+                <h1>📺 Trainingsmodus PRO – Zuschauermonitor</h1>
+                <div id="spectatorContent">
+                    <div style="text-align:center;padding:50px;color:#8aa89a;">
+                        <div style="font-size:3rem;margin-bottom:20px;">⏳</div>
+                        <div>Warte auf Daten vom Hauptbildschirm...</div>
+                        <div style="margin-top:10px;font-size:0.9rem;">Stellen Sie sicher, dass das Hauptfenster geöffnet ist.</div>
+                    </div>
                 </div>
             </div>
         `;
+        setTimeout(() => {
+            if (window.opener && !window.opener.closed) {
+                try {
+                    const parentState = window.opener.state;
+                    if (parentState) {
+                        window.updateSpectatorContent(parentState.arena, parentState.kehren, parentState.winsToChampion, parentState.teamNameW, parentState.teamNameE);
+                    }
+                } catch (e) {}
+            }
+        }, 300);
+
+        setInterval(() => {
+            if (window.opener && !window.opener.closed) {
+                try {
+                    const parentState = window.opener.state;
+                    if (parentState) {
+                        window.updateSpectatorContent(parentState.arena, parentState.kehren, parentState.winsToChampion, parentState.teamNameW, parentState.teamNameE);
+                    }
+                } catch (e) {}
+            }
+        }, 1500);
     }
 
-    container.innerHTML = `
-        <div class="spectator-grid">
-            <div class="spectator-team">
-                <div class="team-label">⚪ Mannschaft W</div>
-                <div class="team-score-big">${scoreA}</div>
-                <div class="team-wins-big">🏆 Siege: ${arena.winsA}</div>
-            </div>
-            <div class="spectator-team red">
-                <div class="team-label">🔴 Mannschaft E</div>
-                <div class="team-score-big">${scoreB}</div>
-                <div class="team-wins-big">🏆 Siege: ${arena.winsB}</div>
-            </div>
-        </div>
-        <div class="spectator-details">
-            <div class="detail-item">
-                <div class="detail-label">Aktuelle Kehre</div>
-                <div class="detail-value">${activeK}</div>
-            </div>
-            <div class="detail-item">
-                <div class="detail-label">Aktueller Durchgang</div>
-                <div class="detail-value">${arena.winsA + arena.winsB + 1}</div>
-            </div>
-            <div class="detail-item">
-                <div class="detail-label">Ergebnis (aktuell)</div>
-                <div class="detail-value" style="font-size:2rem;">${scoreA} : ${scoreB}</div>
-            </div>
-        </div>
-        <div class="spectator-kehren-verlauf">
-            <h4>📊 Kehren-Verlauf</h4>
-            <div class="spectator-verlauf-grid">
-                ${verlaufHtml}
-            </div>
-        </div>
-        <div class="spectator-status">
-            🔄 Aktualisiert automatisch • ${new Date().toLocaleTimeString()}
-        </div>
-    `;
-};
-
-// ===== SEITE LADEN – PRÜFEN OB SPECTATOR TAB =====
-if (window.location.search.includes('spectator=true')) {
-    // Zuschauer-Modus - Nur den Spectator anzeigen
-    document.body.innerHTML = `
-        <div class="spectator-container">
-            <h1>📺 Trainingsmodus PRO – Zuschauermonitor</h1>
-            <div id="spectatorContent">
-                <div style="text-align:center;padding:50px;color:#8aa89a;">
-                    <div style="font-size:3rem;margin-bottom:20px;">⏳</div>
-                    <div>Warte auf Daten vom Hauptbildschirm...</div>
-                    <div style="margin-top:10px;font-size:0.9rem;">Stellen Sie sicher, dass das Hauptfenster geöffnet ist.</div>
-                </div>
-            </div>
-        </div>
-    `;
-    // Versuche, Daten vom Hauptfenster zu bekommen
-    setTimeout(() => {
-        if (window.opener && !window.opener.closed) {
-            try {
-                const parentState = window.opener.state;
-                if (parentState) {
-                    window.updateSpectatorContent(parentState.arena, parentState.kehren, parentState.winsToChampion);
-                }
-            } catch(e) {}
+    // ============================================================
+    // EVENT-LISTENER
+    // ============================================================
+    document.getElementById('playerCount').addEventListener('change', function(e) {
+        if (state.isTrainingEnded) {
+            toast('Training ist beendet! [Enter] für Neustart');
+            return;
         }
-    }, 300);
-    
-    // Polling für Updates vom Hauptfenster
+        state.playerCount = Number(e.target.value);
+        state.selectedTeam = null;
+        state.selectedPlayer = null;
+        updateKeyboardStatus();
+        render();
+        updateSpectatorInWindow();
+        toast(`👥 ${state.playerCount} Spieler`);
+    });
+
+    document.getElementById('kehrenSelect').addEventListener('change', function(e) {
+        if (state.isTrainingEnded) {
+            toast('Training ist beendet! [Enter] für Neustart');
+            return;
+        }
+        state.kehren = Number(e.target.value);
+        state.arena.pointsA = Array(state.kehren).fill(null);
+        state.arena.pointsB = Array(state.kehren).fill(null);
+        state.selectedTeam = null;
+        state.selectedPlayer = null;
+        updateKeyboardStatus();
+        render();
+        updateSpectatorInWindow();
+    });
+
+    document.getElementById('gamesSelect').addEventListener('change', function(e) {
+        if (state.isTrainingEnded) {
+            toast('Training ist beendet! [Enter] für Neustart');
+            return;
+        }
+        state.winsToChampion = Number(e.target.value);
+        render();
+        updateSpectatorInWindow();
+    });
+
+    // ============================================================
+    // HÖHENKORREKTUR
+    // ============================================================
+    function setCorrectHeight() {
+        const vh = window.innerHeight;
+        document.documentElement.style.setProperty('height', vh + 'px');
+        document.body.style.setProperty('height', vh + 'px');
+    }
+
+    window.addEventListener('resize', setCorrectHeight);
+    window.addEventListener('orientationchange', function() {
+        setTimeout(setCorrectHeight, 300);
+    });
+    setCorrectHeight();
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    setupKeyboard();
+    render();
+
     setInterval(() => {
-        if (window.opener && !window.opener.closed) {
+        if (state.spectatorWindow && !state.spectatorWindow.closed) {
             try {
-                const parentState = window.opener.state;
-                if (parentState) {
-                    window.updateSpectatorContent(parentState.arena, parentState.kehren, parentState.winsToChampion);
-                }
-            } catch(e) {}
+                state.spectatorWindow.updateSpectatorContent(state.arena, state.kehren, state.winsToChampion, state.teamNameW, state.teamNameE);
+            } catch (e) {}
         }
-    }, 1500);
-}
-
-// ===== HÖHENKORREKTUR =====
-function setCorrectHeight() {
-    const vh = window.innerHeight;
-    document.documentElement.style.setProperty('height', vh + 'px');
-    document.body.style.setProperty('height', vh + 'px');
-}
-
-window.addEventListener('resize', setCorrectHeight);
-window.addEventListener('orientationchange', function() {
-    setTimeout(setCorrectHeight, 300);
-});
-setCorrectHeight();
-
-// ===== INIT =====
-setupKeyboard();
-render();
-
-// Periodisch Zuschauer aktualisieren
-setInterval(() => {
-    if (state.spectatorWindow && !state.spectatorWindow.closed) {
-        try {
-            state.spectatorWindow.updateSpectatorContent(state.arena, state.kehren, state.winsToChampion);
-        } catch(e) {}
-    }
-}, 2000);
+    }, 2000);
 </script>
 
 </body>
